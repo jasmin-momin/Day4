@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      Simple Javascript Shopping List
+    </title>
+  /* [SHOPPING LIST] */
+#shop-list {
+  max-width: 800px;
+  display: grid;
+  grid-template-columns: 70% 30%;
+  grid-gap: 10px;
+}
+#shop-list div {
+  background: #f2f2f2;
+  padding: 10px;
+}
+
+/* [DOES NOT MATTER] */
+html, body { font-family: arial, sans-serif }
+</head>
+  <body>
+    <!-- [SHOPPING LIST] -->
+    <h1>SHOPPING LIST</h1>
+    <div id="shop-list"></div>
+
+    <!-- [ADD NEW ITEM] -->
+    <h1>ADD ITEM</h1>
+    <form id="shop-add">
+      <input type="text" id="add-item" placeholder="New Item" required value="1 bag of FOO BAR!"/>
+      <input type="submit" value="Add Item"/>
+    </form>
+    <script>
+    add : function (evt) {
+// add() : add a new item to the list
+
+  // Prevent form submit
+  evt.preventDefault();
+
+  // Add new entry to shopper.items
+  var item = document.getElementById('add-item');
+  shoppingBasket.items.push({
+    name : item.value, // Item name
+    done : false // True for "completed" item, false for not
+  });
+
+  // Remove current add item
+  item.value = "";
+
+  // Redraw the shopping list
+  shoppingBasket.draw();
+
+  // Save the shopping list to local storage
+  shoppingBasket.save();
+};
+draw : function () {
+// draw() : draw the HTML shopping list
+
+  // Reset the current shopping list first
+  var container = document.getElementById('shop-list');
+  container.innerHTML = ""; 
+
+  // Rebuild the list
+  if (shoppingBasket.items.length > 0) {
+    var row = "", button = "";
+    for (let i in shoppingBasket.items) {
+      // Item name
+      row = document.createElement("div");
+      row.innerHTML = shoppingBasket.items[i].name;
+      // Strike through if item is "done"
+      if (shoppingBasket.items[i].done) {
+        row.style = "text-decoration:line-through;";
+      }
+      container.appendChild(row);
+
+      // Delete button
+      row = document.createElement("div");
+      button = document.createElement("input");
+      button.type = "button";
+      button.value = "Delete";
+      button.dataset.id = i;
+      button.addEventListener("click", shopper.delete);
+      row.appendChild(button);
+
+      // Completed/Not Yet button
+      button = document.createElement("input");
+      button.type = "button";
+      button.value = shopper.items[i].done ? "Not Yet" : "Got It";
+      button.dataset.id = i;
+      button.addEventListener("click", shopper.toggle);
+      row.appendChild(button);
+      container.appendChild(row);
+    }
+  }
+};
+save : function () {
+// save() : save the current shopping list into the local storage
+
+  // Init localstorage
+  if (localStorage.items == undefined) { localStorage.items = "[]"; }
+
+  // Save current items list to localstorage
+  localStorage.items = JSON.stringify(shopper.items);
+};
+load : function () {
+// load() : retrieve previous shopping cart from local storage
+
+  // Init localstorage
+  if (localStorage.items == undefined) { localStorage.items = "[]"; }
+
+  // Load shopping list
+  shoppingBasket.items = JSON.parse(localStorage.items);
+
+  // Draw
+  shoppingBasket.draw();
+};
+window.addEventListener("load", function () {
+  shoppingBasket.load();
+  document.getElementById("shop-add").addEventListener("submit", shopper.add);
+});
+delete : function () {
+// delete() : delete the selected item
+
+  if (confirm("Remove selected item?")) {
+    // Remove selected item
+    shoppingBasket.items.splice(this.dataset.id, 1); 
+
+    // Save
+    shoppingBasket.save();
+
+    // Redraw
+    shoppingBasket.draw();
+  }
+};
+toggle : function () {
+// toggle() : toggle item between "got it" or "not yet"
+
+  // Toggle item status
+  var id = this.dataset.id;
+  shoppingBasket.items[id].done = !shopper.items[id].done;
+
+  // Save
+  shoppingBasket.save();
+
+  // Redraw
+  shoppingBasket.draw();
+}
+</script>
+</body>
+</html>
