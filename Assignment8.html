@@ -1,0 +1,17 @@
+<html>
+<body>
+<h3>replace the coode with arrow function</h3>
+<script>
+function ask(question, yes, no) {
+  if (confirm(question)) yes()
+  else no();
+}
+
+ask(
+  "Do you agree?",
+  () => alert("You agreed."),
+  () => alert("You canceled the execution.")
+);
+</script>
+</body>
+</html>
